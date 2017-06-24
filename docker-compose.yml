@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+    mysql:
+        image: mysql:5.7.18
+        container_name: mysql
+        ports:
+            - "3306:3306"
+        volumes:
+            - "./docker/shared/.data/mysql:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+    mongodb:
+        image: mongo:3.0.15
+        container_name: mongodb
+        ports:
+            - "27017:27017"
+        volumes:
+            - "./docker/shared/.data/mongodb:/data/db"
+
+    web:
+        build: ./docker/images/web
+        container_name: web
+        ports:
+            - "80:80"
+        volumes:
+            - "~/workspace/www:/var/www"
+            - "./docker/nginx/sites:/etc/nginx/sites"
+            - "./docker/shared/logs/nginx:/var/log/nginx"
+            - "./docker/shared/logs/cron:/var/log/cron"
+        depends_on:
+          - mysql
+          - mongodb
+        extra_hosts:
+         - "localhost:172.17.0.1"
